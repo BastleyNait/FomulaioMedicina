@@ -1,3 +1,14 @@
+# CURSO: INTRODUCCIÓN AL DESARROLLO DE NUEVAS PLATAFORMAS
+
+## Docente
+Ernesto Suárez
+
+## Integrantes
+- Sebastián Arley Chirinos Negrón
+- Rodrigo Estéfano Viza Cuti
+
+---
+
 # MediNotis: Prototipo de App Accesible
 
 MediNotis es un prototipo de aplicación Android, construido con Kotlin y Jetpack Compose, diseñado para registrar recordatorios de medicamentos. Su foco principal es la accesibilidad (A11y): permite a los usuarios ajustar dinámicamente el tamaño del texto de toda la UI (100%–180%) y recuerda esta preferencia de forma persistente.
@@ -198,6 +209,32 @@ fun CampoDeTextoAccesible(
     )
 }
 ```
+
+## Slider de Accesibilidad
+
+- Componente: `Slider` de Material 3.
+- Estado: `currentScaleFactor` desde `SettingsViewModel` (observado con `collectAsState()`).
+- Rango: `1.0f..1.8f` (ajustable mediante `MAX_FONT_SCALE_FACTOR`).
+- Pasos: `steps = 5` para puntos intermedios accesibles.
+- Persistencia: `onValueChange = onScaleFactorChange` que llama a `updateTextScaleFactor(it)` en el ViewModel y guarda en DataStore.
+- Uso en tipografías: multiplicar `fontSize * currentScaleFactor` en `Text`, `TextField` y botones.
+
+```kotlin
+Slider(
+    value = currentScaleFactor,
+    onValueChange = onScaleFactorChange,
+    valueRange = 1.0f..MAX_FONT_SCALE_FACTOR,
+    steps = 5
+)
+```
+
+## DataStore (Preferences) – Detalle
+
+- Extensión: `val Context.dataStore by preferencesDataStore(name = "settings")`.
+- Clave: `TEXT_SCALE_FACTOR_KEY = floatPreferencesKey("text_scale_factor")`.
+- Lectura: `context.dataStore.data.map { it[TEXT_SCALE_FACTOR_KEY] ?: 1.0f }`.
+- Escritura: `context.dataStore.edit { it[TEXT_SCALE_FACTOR_KEY] = scaleFactor }`.
+- Integración con ViewModel: `stateIn(viewModelScope, WhileSubscribed(5000), 1.0f)` para exponer `StateFlow<Float>`.
 
 ## Accesibilidad (A11y)
 
